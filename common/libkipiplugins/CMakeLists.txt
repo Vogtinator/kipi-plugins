@@ -31,7 +31,30 @@ set(kipiplugins_LIB_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/tools/kipiplugins_debug.cpp
                          ${libkipipluginsresources_SRCS}
 )
 
-add_library(KF5kipiplugins SHARED ${kipiplugins_LIB_SRCS})
+# The o2 library does not adhere to the flags we use
+remove_definitions(
+    -DQT_NO_SIGNALS_SLOTS_KEYWORDS
+    -DQT_NO_CAST_FROM_ASCII
+    -DQT_NO_CAST_TO_ASCII
+    -DQT_NO_URL_CAST_FROM_STRING
+    -DQT_NO_CAST_FROM_BYTEARRAY)
+
+# Copied from o2/src/CMakeLists.txt
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(o2_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/o2/src/o2.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/o2/src/o2reply.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/o2/src/o2replyserver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/o2/src/o2requestor.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/o2/src/o2simplecrypt.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/o2/src/o0settingsstore.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/o2/src/o0baseauth.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/o2/src/o0abstractstore.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/o2/src/o0globals.h
+)
+
+add_library(KF5kipiplugins SHARED ${kipiplugins_LIB_SRCS} ${o2_SRCS})
 add_dependencies(KF5kipiplugins kipiplugins-gitversion)
 
 generate_export_header(KF5kipiplugins BASE_NAME kipiplugins EXPORT_MACRO_NAME KIPIPLUGINS_EXPORT)
@@ -40,6 +63,7 @@ target_link_libraries(KF5kipiplugins
 
                       PUBLIC
                       Qt5::Gui
+                      Qt5::Network
 
                       PRIVATE
 
